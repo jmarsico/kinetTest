@@ -3,10 +3,14 @@
 //--------------------------------------------------------------
 void testApp::setup(){
     ofSetVerticalSync(true);
+    ofBackground(255);
     
     
     gui.setup();
-    gui.add(color.setup("color",ofColor(100,100,140),ofColor(0,0),ofColor(255,255)));
+    gui.add(r.setup("red", 255, 0, 255));
+    gui.add(g.setup("green", 255, 0, 255));
+    gui.add(b.setup("blue", 255, 0, 255));
+    gui.setPosition(10, 10);
     
     numFixtures = 2;
     
@@ -14,12 +18,12 @@ void testApp::setup(){
     supply = new PowerSupply(CK_HOST);
     
     //create fixtures (pay attention to fixture ID)
-    for(size_t i = 1; i < numFixtures+1; i++)
+    for(size_t i = 0; i < numFixtures; i++)
     {
         
-        ofLog() << "enters for loop" ;
-        FixtureRGB *fixture = new FixtureRGB(i);
-        fixtures.push_back(*fixture);
+        FixtureRGB fixture = *new FixtureRGB(0);
+        fixture.setAddress(i*3);
+        fixtures.push_back(fixture);
     }
     
     ofLog() << "number of fixtures at setup: " << fixtures.size();
@@ -28,16 +32,29 @@ void testApp::setup(){
     for(size_t i = 0; i < numFixtures; i++)
     {
         supply->addFixture(&fixtures[i]);
-    }    
+    }
+    
+    //supply->connect(CK_HOST);
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
-    ofColor tempCol = color;
+    //tempCol = color;
+    uint8_t _r = r;
+    uint8_t _g = g;
+    uint8_t _b = b;
     
-    for(int i  = 1; i< fixtures.size()+1; i++)
+    
+    for(int i  = 0; i < fixtures.size(); i++)
     {
-        fixtures[i].set_rgb(tempCol.r, tempCol.g, tempCol.b);
+        //fixtures[i].set_rgb(_r, _g, _b);
+        fixtures[i].set_red(_r);
+        fixtures[i].set_green(_g);
+        fixtures[i].set_blue(_b);
+        
+        ofLog() << i <<  ": red: " << (int)fixtures[i].get_red();
+        ofLog() << i <<  ": green: " << (int)fixtures[i].get_green();
+        ofLog() << i <<  ": blue: " << (int)fixtures[i].get_blue();
         
     }
     
@@ -48,19 +65,27 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    ofBackground(255);
-    ofSetColor(0);
+    ofSetColor(r, g, b);
+    ofRect(0,0, ofGetWidth(), ofGetHeight());
+    gui.draw();
+    
+    int _r = r;
+    int _g = g;
+    int _b = b;
 
+    ofSetColor(0);
     //report
+    stringstream info;
     info
-    << "red: " << fixtures.at(0).get_red() << endl
-    << "green: " << fixtures.at(0).get_green() << endl
-    << "blue: " << fixtures.at(0).get_blue() << endl
+    << "channel 1" << endl
+    << "red: " << _r << endl
+    << "green: " << _g << endl
+    << "blue: " << _b << endl
     << "Number of Fixtures: "  << fixtures.size() << endl;
     ofDrawBitmapString(info.str(), 10, 200);
     
     
-    gui.draw();
+    
 
 }
 
